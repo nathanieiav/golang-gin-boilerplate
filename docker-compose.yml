@@ -1,0 +1,40 @@
+version: '3.7'
+
+services:
+  gin_db_college:
+    image: postgres:13-alpine
+    container_name: gin_db_college
+    ports:
+      - ${EXPOSE_DB_PORT}:${DB_PORT}
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - gin_data_college:/var/lib/postgresql/data/
+    networks:
+      - gin-networks-college
+
+  gin_app_college:
+    container_name: gin_app_college
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - ${PORT}:${PORT}
+      - ${EXPOSE_PORT}:${EXPOSE_PORT}
+    volumes:
+      - ./:/app/:rw,delegated
+    depends_on:
+      - gin_db_college
+    links:
+      - gin_db_college:gin_db_college
+    networks:
+      - gin-networks-college
+
+volumes:
+  gin_data_college:
+
+networks:
+  gin-networks-college:
+    driver: bridge
